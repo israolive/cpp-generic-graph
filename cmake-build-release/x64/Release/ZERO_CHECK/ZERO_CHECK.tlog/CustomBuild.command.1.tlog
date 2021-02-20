@@ -1,0 +1,10 @@
+^D:\USR\CODE\CPP\GRAPH-THEORY\CMAKE-BUILD-RELEASE\CMAKEFILES\98BCB198E63F6F063507A0F020AB883C\GENERATE.STAMP.RULE
+setlocal
+D:\sys\os\windows\clion\2019-3-5\bin\cmake\win\bin\cmake.exe -SD:/usr/code/cpp/graph-theory -BD:/usr/code/cpp/graph-theory/cmake-build-release --check-stamp-list CMakeFiles/generate.stamp.list --vs-solution-file D:/usr/code/cpp/graph-theory/cmake-build-release/graph_theory.sln
+if %errorlevel% neq 0 goto :cmEnd
+:cmEnd
+endlocal & call :cmErrorLevel %errorlevel% & goto :cmDone
+:cmErrorLevel
+exit /b %1
+:cmDone
+if %errorlevel% neq 0 goto :VCEnd
