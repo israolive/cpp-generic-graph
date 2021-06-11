@@ -2,52 +2,45 @@
 #define GRAPH_THEORY_GRAPH_HPP
 
 #include <type_traits>
-#include <tuple>
-#include <vector>
+#include <utility>
+#include <concepts>
 
-namespace graph {
+namespace gg {
 
-struct graph_base {};
+template <class N>
+concept Real = std::integral<N> || std::floating_point<N>;
 
-template <typename G>
-inline constexpr auto is_graph = std::derived_from<G, graph_base>;
-
-template <typename G>
-using enable_graph = std::enable_if_t<is_graph<G>, G>;
-
-template <typename ... T>
-struct add_vertex {
-    std::tuple<T...> args;
-};
-
-template <typename ... T>
-add_vertex(T&& ... args) -> add_vertex<T...>;
-
-template <typename G, typename ... T>
-inline constexpr auto operator|(G && g, add_vertex<T...> && add) -> G& {
-    return std::apply(&std::remove_reference_t<G>::template add_vertex<T...>,
-            std::tuple_cat(std::make_tuple(&g), add.args));
+template <Real R>
+constexpr auto default_weight() -> R {
+    return R(1);
 }
 
-template <typename VertexType>
-struct list_graph {
-    std::vector<VertexType> vertex;
-
-    template <typename ... T>
-    auto add_vertex(T && ... data) -> list_graph& {
-        this->vertex.emplace_back(std::forward<T>(data)...);
-        return *this;
-    }
+template <class N>
+concept Default_Weightable = requires(N n) {
+    { default_weight<N>() };
 };
 
-auto main() -> int {
-    auto graph = list_graph<int>()
-                        | add_vertex{5}
-                        | add_vertex{10}
-                        | add_vertex{15};
+struct Graph_Base {};
 
-    return 0;
-}
+template <class G>
+concept Graph = std::derived_from<G, Graph_Base> && requires(G g) {
+    { std::declval<typename G::Vertex_Type>() };
+    { std::declval<typename G::Edge_Weight>() };
+    { g.has_vertex(std::declval<std::size_t>()) };
+    { g.has_edge(std::declval<std::size_t>(), std::declval<std::size_t>()) };
+    { g.get_vertex(std::declval<std::size_t>()) };
+    { g.get_edge(std::declval<std::size_t>(), std::declval<std::size_t>()) };
+    { g.add_vertex(std::declval<typename G::Vertex_Type>()) };
+    { g.add_edge(std::declval<std::size_t>(), std::declval<std::size_t>(),
+                    std::declval<typename G::Edge_Weight>(), std::declval<bool>()) };
+};
+
+template <class Weight>
+struct Edge {
+    std::size_t i;
+    std::size_t j;
+    Weight w;
+};
 
 }
 
